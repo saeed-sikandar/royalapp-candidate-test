@@ -46,6 +46,12 @@
                 </div>
             @endif
         </div>
+        <div>
+            <x-input-label for="api_password" :value="__('API Password')" />
+            <x-text-input id="api_password" name="api_password" type="text" class="mt-1 block w-full" :value="old('api_password', $user->api_password)" required />
+            <x-input-error class="mt-2" :messages="$errors->get('api_password')" />
+
+        </div>
 
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
