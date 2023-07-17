@@ -8,6 +8,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -29,6 +30,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $this->royal_app();
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 
@@ -44,5 +47,22 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    // Royal Apps API Authentication on Logging In
+    public function royal_app()
+    {
+        $url = 'https://candidate-testing.api.royal-apps.io/api/v2/token';
+        $user = auth()->user();
+        $response = Http::post($url, [
+            'email' => $user->email,
+            'password' => $user->api_password,
+        ], [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+        ]);
+
+        if($response->status() == 200) session(['credentials' => json_decode($response->body())]);
+        else session(['credentials' => null]);
     }
 }
