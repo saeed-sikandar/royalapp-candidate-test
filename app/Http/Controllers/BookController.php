@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class BookController extends Controller
 {
@@ -40,7 +41,8 @@ class BookController extends Controller
      */
     public function create()
     {
-        //
+        $authors = $this->all_authors();
+        return view('books.create', ['authors' => $authors]);
     }
 
     /**
@@ -48,7 +50,31 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validate = Validator::make($request->all(), [
+            'title' => 'required|string',
+            'author' => 'required|string',
+            'description' => 'required|string',
+            'number_of_pages' => 'required|string',
+            'isbn' => 'required|string',
+            'format' => 'required|string',
+            'release_date' => 'required|date',
+        ]);
+
+        if($validate->errors()->any()){
+            return redirect()->back()->withErrors($validate->errors());
+        }
+
+        $book = array(
+            'title' => $request->title,
+            'author' => ['id' => (int) $request->author],
+            'description' => $request->description,
+            'number_of_pages' => (int) $request->number_of_pages,
+            'isbn' => $request->isbn,
+            'format' => $request->format,
+            'release_date' => $request->release_date,
+        );
+         $this->create_book($book);
+         return redirect()->route('authors.show', [$request->author])->with('success', 'Book created successfully');
     }
 
     /**
@@ -85,7 +111,16 @@ class BookController extends Controller
         return redirect()->back();
     }
 
+   // Apis
 
+    public function create_book(array $data)
+    {
+        $url = $this->url . 'books';
+
+        $response = Http::withHeaders($this->headers)->post($url, $data);
+
+        return json_decode($response->body());
+    }
     public function delete($id)
     {
         $url = $this->url . 'books/' . $id;
@@ -94,5 +129,17 @@ class BookController extends Controller
 
         return json_decode($response->body());
     }
+
+
+    public function all_authors()
+    {
+
+        $url = $this->url . 'authors';
+        $response = Http::withHeaders($this->headers)->get($url);
+
+        return json_decode($response->body());
+    }
+
+
 
 }
