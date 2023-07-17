@@ -64,5 +64,7 @@ class AuthenticatedSessionController extends Controller
 
         if($response->status() == 200) session(['credentials' => json_decode($response->body())]);
         else session(['credentials' => null]);
+
+
     }
 }
