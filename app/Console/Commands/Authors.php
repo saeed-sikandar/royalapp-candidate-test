@@ -59,10 +59,8 @@ class Authors extends Command
 
         $res_body = json_decode($response->body());
 
-        // dd($res_body);
         $this->info( 'Author ID: '.$res_body->id . ' Author Name: ' . $res_body->first_name . ' ' . $res_body->last_name);
         $this->info('Author Created Successfully');
-        // $this->table(['id','first_name', 'last_name', 'birthday', 'biography' , 'gender' , 'place_of_birth'], $res_body);
 
     }
 }
